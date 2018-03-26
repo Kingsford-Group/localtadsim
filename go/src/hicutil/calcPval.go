@@ -9,14 +9,14 @@ import (
 //	"os"
 )
 
-func CalcPval(intvl1 [][]int, intvl2 [][]int, vival float64, nshuffles int) float64 {
+func CalcPval(intvl1 [][]int, intvl2 [][]int, n int, vival float64, nshuffles int) float64 {
 // more efficient to calculate VI as entropy(intvl1) + entropy(intvl2) - 2*mutinfo, because only need to recalculate mutual info on each iteration
 	shuffvi1 := make([]float64, nshuffles)
 	shuffvi2 := make([]float64, nshuffles)
 
-	h1 := CalcEntropy(intvl1)
-	h2 := CalcEntropy(intvl2)
-	n := intvl1[len(intvl1)-1][1] - intvl1[0][0]+1
+	h1 := CalcEntropy(intvl1,n)
+	h2 := CalcEntropy(intvl2,n)
+	//n := intvl1[len(intvl1)-1][1] - intvl1[0][0]+1
 
 	clus1sizes := make([]int, len(intvl1))
         for c,clus := range intvl1 {
@@ -71,6 +71,16 @@ func CalcPval(intvl1 [][]int, intvl2 [][]int, vival float64, nshuffles int) floa
 		if shuffvi2[i] - vival < 1e-10 { count2++ }
 	}
 	pval := (float64(count1+1)/float64(nshuffles+1) + float64(count2+1)/float64(nshuffles+1))/2.0
+/*	if pval < 0.05 && (len(intvl1) == 1 || len(intvl2) == 1) {
+		fmt.Println(intvl1)
+		fmt.Println(intvl2)
+		fmt.Println(pval, count1, count2)
+		fmt.Println(n,vival,nshuffles)
+		fmt.Println(shuffvi1)
+		fmt.Println(shuffvi2)
+		//fmt.Println(querypt.start, querypt.end)
+                os.Exit(1)
+        }*/
 	return pval
 }
 

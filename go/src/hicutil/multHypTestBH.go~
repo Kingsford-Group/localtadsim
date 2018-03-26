@@ -1,0 +1,27 @@
+package hicutil
+
+import (
+	"sort"
+)
+
+func MultHypTestBH(allbdyvis []bdyvi) []bdyvi {
+	// multiple hypothesis correction through Benjamini-Hochberg procedure, at level 0.05
+
+	alpha := 0.05
+	numtests := len(allbdyvis)
+	// order lists by p-values
+	sort.Slice(allbdyvis, func(i,j float64) bool {return allbdyvis[i].pval < allbdyvis[j].pval})
+	// define thresholds
+	thresh := make([]float64, numtests)
+	for i := 0; i < numtests; i++ {
+		thresh[i] = i*alpha/numtests
+	}
+	// find greatest index where pval < thresh
+	imax := numtests
+	for i := numtests; i >= 0; i-- {
+		imax = i
+		if allbdyvis[i].pval < thresh[i] { break }
+	}
+	// keep all locations up to imax
+	return allbdyvis[:imax+1]
+}

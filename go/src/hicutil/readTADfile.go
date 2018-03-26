@@ -7,6 +7,7 @@ import(
 	"strings"
 	"strconv"
 	"os"
+	"math"
 //	"fmt"
 )
 
@@ -26,7 +27,12 @@ func ReadTADFile(filename string, res int) [][]int  {
 			start,err = strconv.Atoi(line[1])
 			start = start/res
 			end,err = strconv.Atoi(line[2])
-			end = (end+1)/res - 1
+			// (end+1)/res -1 for Armatus - for others just do end/res-1
+			if math.Mod(float64(end), float64(res)) != 0 {
+				end = (end+1)/res - 1
+			} else {
+				end = end/res - 1
+			}	
 			tad[0] = start
 			tad[1] = end
 			tadlist = append(tadlist,tad)

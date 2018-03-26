@@ -71,7 +71,7 @@ func main() {
 	// calculate all p-values, select significant points
 	nshuffles := 1000
 	sigpts := calcAllPvals(tadlists, bdyvis, nshuffles)
-//	f2name := "/mnt/disk34/user/nsauerwa/go/mini_example_sigpts.txt"
+//	f2name := "/mnt/disk34/user/nsauerwa/localtadsim/go/testing/test3_a549_kbm7_chr18_sigpts.txt"
 //	writeOutputToFile(sigpts, &f2name)
 	//fmt.Println("all sig points:")
 	//fmt.Println(sigpts)
@@ -130,9 +130,16 @@ func calcVIatBdysNaive(tadlists [][][]int) ([]bdyvi) {
 				newbdyvi.start = tadstart[0]
 				newbdyvi.end = tadend[1]
 				n := tadend[1] - tadstart[0] + 1
+				//n1 := extendn(tadlists[0],tadend[1])
+				//n2 := extendn(tadlists[1],tadend[1])
 				intvl1 := hicutil.ProcessIntervals(tadlists[0],tadstart[0],tadend[1])
 				intvl2 := hicutil.ProcessIntervals(tadlists[1],tadstart[0],tadend[1])
 				overlaps := hicutil.CalcOverlaps(intvl1,intvl2)
+				/*if n1 != n2 {
+					maxn := n1
+					if n2 > n1 { maxn = n2 }
+					overlaps = scaleLastOverlap(overlaps, maxn, tadend)
+				}*/
 				clus1sizes := make([]int, len(intvl1))
 				for c,clus := range intvl1 {
 					clus1sizes[c] = clus[1]-clus[0]+1 }
@@ -149,6 +156,13 @@ func calcVIatBdysNaive(tadlists [][][]int) ([]bdyvi) {
 	return bdyvilist
 }
 
+func scaleLastOverlap(overlaps [][]int, maxn int, lasttad []int) [][]int {
+
+	scaleby := float64(maxn - lasttad[1] + 1)/float64(maxn - lasttad[0] + 1)
+	overlaps[len(overlaps)-1][len(overlaps[0])-1] = int(float64(overlaps[len(overlaps)-1][len(overlaps[0])-1]) * scaleby)
+	return overlaps
+}
+
 func calcVIatBdys(tadlists [][][]int) ([]bdyvi) {
 
 	var bdyvilist []bdyvi
@@ -160,7 +174,10 @@ func calcVIatBdys(tadlists [][][]int) ([]bdyvi) {
 			var newbdyvi bdyvi
 			newbdyvi.start = tads[0]
 			newbdyvi.end = tads[1]
+			//if tads[0] == tads[1] { continue }
 			n := tads[1] - tads[0] + 1
+			//newend := extendn(tadlists[int(math.Abs(float64(i-1)))], tads[1])
+			//n := newend - tads[0] + 1
 			intvl1 := hicutil.ProcessIntervals(tadlists[0], tads[0], tads[1])
 			intvl2 := hicutil.ProcessIntervals(tadlists[1], tads[0], tads[1])
 			// need cluster sizes and overlaps for conditional entropy calculations
@@ -187,6 +204,7 @@ func calcVIatBdys(tadlists [][][]int) ([]bdyvi) {
 				os.Exit(1)
 			}
 			newbdyvi.vi = currhvals.vi/math.Log(float64(tads[1]-tads[0]+1)) // divide by log(n) to normalize
+			if tads[0] == tads[1] { continue }
 			bdyvilist = append(bdyvilist, newbdyvi)
 		}		
 	}
@@ -197,7 +215,13 @@ func calcVIatBdys(tadlists [][][]int) ([]bdyvi) {
 			for tadidx, starttad := range tadlist[:len(tadlist)-numtads] {
 				endtad := tadlist[tadidx+numtads]
 				n := endtad[1] - starttad[0] + 1
+				//newend := extendn(tadlists[noti], endtad[1])
+				//n := newend - starttad[0] + 1
+				//fmt.Println("n = ",endtad[1] - starttad[0]+1)
+				//fmt.Println("extended n = ",n)
 				//previntvl := []int{starttad[0], endtad[0]-1}
+				//prevend := extendn(tadlists[noti], endtad[0])
+				//prevn := prevend - starttad[0]
 				prevn := endtad[0] - starttad[0]
 				endtadlen := endtad[1]-endtad[0]+1
 				scale1 := float64(prevn)/float64(n)
@@ -236,6 +260,18 @@ func calcVIatBdys(tadlists [][][]int) ([]bdyvi) {
 	return bdyvilist
 }
 
+func extendn(tadlist [][]int, x int) int {
+
+	for _,tad := range tadlist {
+		if tad[0] >= x {
+			return tad[0]
+		} else if tad[1] >= x {
+			return tad[1]
+		}
+	}
+	return x
+}
+
 func contains(a [][]int, x int) bool {
 	for _, row := range a {
 		if row[1] == x {
@@ -271,6 +307,7 @@ func calcAllPvals(tadlists [][][]int, bdyvis []bdyvi, nshuffles int) []bdyvi {
 
 	var sigpts []bdyvi
 	bdyvis_pval := make([]bdyvi, len(bdyvis))
+	allpvals := make([]float64,len(bdyvis_pval))
 	//for _,querypt := range bdyvis {
 	for i,querypt := range bdyvis {
 	//	go func (i int) {
@@ -278,6 +315,7 @@ func calcAllPvals(tadlists [][][]int, bdyvis []bdyvi, nshuffles int) []bdyvi {
 
 	//	fmt.Println(i)
 		bdyvis_pval[i] = appendPval(tadlists, querypt, nshuffles)
+		allpvals[i] = bdyvis_pval[i].pval
 			/*if p < 0.05 {
 				querypt.pval = p
 				sigpts = append(sigpts, querypt)
@@ -285,11 +323,15 @@ func calcAllPvals(tadlists [][][]int, bdyvis []bdyvi, nshuffles int) []bdyvi {
 	//	} (i)
 	}
 	//wg.Wait()
-	for _,query := range bdyvis_pval {
+	/*for _,query := range bdyvis_pval {
 		if query.pval < 0.05 {
 			sigpts = append(sigpts, query)
 		}
-	}
+	}*/
+//	sigpts = hicutil.MultHypTestBH(bdyvis_pval)
+	bhidx := hicutil.MultHypTestBH(allpvals)
+	sort.Slice(bdyvis_pval, func(i,j int) bool {return bdyvis_pval[i].pval < bdyvis_pval[j].pval})
+	sigpts = bdyvis_pval[:bhidx+1]
 	return sigpts
 }
 
@@ -297,7 +339,23 @@ func appendPval( tadlists [][][]int, querypt bdyvi, nshuffles int) (bdyvi) {
 	
 	intvl1 := hicutil.ProcessIntervals(tadlists[0], querypt.start, querypt.end)
 	intvl2 := hicutil.ProcessIntervals(tadlists[1], querypt.start, querypt.end)
-	p := hicutil.CalcPval(intvl1, intvl2, querypt.vi, nshuffles)
+	// calculate extendn for both intervals, use bigger n
+//	n1 := extendn(tadlists[0], querypt.end)
+//	n2 := extendn(tadlists[1], querypt.end)
+//	n := n1
+//	if n2 > n1 { n = n2 }
+//	n += - querypt.start + 1
+	// add n as input to CalcPval
+	n := querypt.end - querypt.start + 1
+	p := hicutil.CalcPval(intvl1, intvl2, n, querypt.vi, nshuffles)
+	if p < 0.05 && (len(intvl1) == 1 || len(intvl2) == 1) {
+		fmt.Println(intvl1)
+		fmt.Println(intvl2)
+		fmt.Println(p)
+		fmt.Println(n,querypt.vi)
+		fmt.Println(querypt.start, querypt.end)
+		os.Exit(1)
+	}
 	querypt.pval = p
 	return querypt
 }

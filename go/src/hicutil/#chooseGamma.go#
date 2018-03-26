@@ -8,7 +8,6 @@ import (
 	"strings"
 	"strconv"
 	"sort"
-//	"fmt"
 )
 
 func ChooseGamma(tadlen float64,fileseed string, res int) ([][]int, float64) {

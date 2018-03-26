@@ -1,0 +1,7 @@
+package hicutil
+
+import ()
+
+func MultHypTestBH(allbdyvis []bdyvi) []bdyvi {
+
+}

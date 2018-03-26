@@ -3,13 +3,14 @@ package hicutil
 import (
 	"math"
 	"fmt"
-//	"os"
+	"os"
 )
 
 func CalcMutInfo(overlaps [][]int, sizes1 []int, sizes2 []int, intn int) float64 {
 
 	mutinfo := 0.0
 	n := float64(intn)
+	if n < 0 { os.Exit(1) }
 	for i,row := range overlaps {
 		for j,val := range row {
 			jointpr := float64(val)/n
@@ -26,6 +27,7 @@ func CalcMutInfo(overlaps [][]int, sizes1 []int, sizes2 []int, intn int) float64
 		fmt.Println(overlaps)
 		fmt.Println(sizes1)
 		fmt.Println(sizes2)
+		fmt.Println(n)
 	}
 	return mutinfo
 }
