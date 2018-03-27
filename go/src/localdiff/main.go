@@ -197,13 +197,6 @@ func calcVIatBdys(tadlists [][][]int) ([]bdyvi) {
 			for tadidx, starttad := range tadlist[:len(tadlist)-numtads] {
 				endtad := tadlist[tadidx+numtads]
 				n := endtad[1] - starttad[0] + 1
-				//newend := extendn(tadlists[noti], endtad[1])
-				//n := newend - starttad[0] + 1
-				//fmt.Println("n = ",endtad[1] - starttad[0]+1)
-				//fmt.Println("extended n = ",n)
-				//previntvl := []int{starttad[0], endtad[0]-1}
-				//prevend := extendn(tadlists[noti], endtad[0])
-				//prevn := prevend - starttad[0]
 				prevn := endtad[0] - starttad[0]
 				endtadlen := endtad[1]-endtad[0]+1
 				scale1 := float64(prevn)/float64(n)
@@ -240,18 +233,6 @@ func calcVIatBdys(tadlists [][][]int) ([]bdyvi) {
 		}
 	}
 	return bdyvilist
-}
-
-func extendn(tadlist [][]int, x int) int {
-
-	for _,tad := range tadlist {
-		if tad[0] >= x {
-			return tad[0]
-		} else if tad[1] >= x {
-			return tad[1]
-		}
-	}
-	return x
 }
 
 func contains(a [][]int, x int) bool {
@@ -310,7 +291,6 @@ func calcAllPvals(tadlists [][][]int, bdyvis []bdyvi, nshuffles int) []bdyvi {
 			sigpts = append(sigpts, query)
 		}
 	}*/
-//	sigpts = hicutil.MultHypTestBH(bdyvis_pval)
 	bhidx := hicutil.MultHypTestBH(allpvals)
 	sort.Slice(bdyvis_pval, func(i,j int) bool {return bdyvis_pval[i].pval < bdyvis_pval[j].pval})
 	sigpts = bdyvis_pval[:bhidx+1]
@@ -321,13 +301,6 @@ func appendPval( tadlists [][][]int, querypt bdyvi, nshuffles int) (bdyvi) {
 	
 	intvl1 := hicutil.ProcessIntervals(tadlists[0], querypt.start, querypt.end)
 	intvl2 := hicutil.ProcessIntervals(tadlists[1], querypt.start, querypt.end)
-	// calculate extendn for both intervals, use bigger n
-//	n1 := extendn(tadlists[0], querypt.end)
-//	n2 := extendn(tadlists[1], querypt.end)
-//	n := n1
-//	if n2 > n1 { n = n2 }
-//	n += - querypt.start + 1
-	// add n as input to CalcPval
 	n := querypt.end - querypt.start + 1
 	p := hicutil.CalcPval(intvl1, intvl2, n, querypt.vi, nshuffles)
 	if p < 0.05 && (len(intvl1) == 1 || len(intvl2) == 1) {
