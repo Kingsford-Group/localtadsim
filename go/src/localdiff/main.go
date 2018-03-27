@@ -51,40 +51,22 @@ func main() {
 
 	// read TAD files and process TAD lists to fill in non-TAD regions
 	tadlists := processTADLists(tadfilelist, res, gammaopt, medtadlen)
-//	os.Exit(1)
-	//fmt.Println("done processing TAD lists, choosing optimal gamma")
+	fmt.Println("done processing TAD lists, choosing optimal gamma")
+
 	// calculate VI values at boundaries (using DP)
 	bdyvis := calcVIatBdys(tadlists)
 //	bdyvisnaive := calcVIatBdysNaive(tadlists)
-//	fmt.Println(len(bdyvis))
-//	fmt.Println(len(bdyvisnaive))
-//	f1name := "/mnt/disk34/user/nsauerwa/go/test_bdyvis_dp.txt"
-//	writeOutputToFile(bdyvis,&f1name)
-//	f2name := "/mnt/disk34/user/nsauerwa/go/test_bdyvis_naive.txt"
-//	writeOutputToFile(bdyvis,&f2name)
-	//fmt.Println("all VIs at bdys:")
-	//fmt.Println(bdyvis)
-	//fmt.Println("done calculating VIs at all boundaries")
-	//fmt.Println("number of bdyvi points =",len(bdyvis))
-	//os.Exit(1)
 	
 	// calculate all p-values, select significant points
 	nshuffles := 1000
 	sigpts := calcAllPvals(tadlists, bdyvis, nshuffles)
-//	f2name := "/mnt/disk34/user/nsauerwa/localtadsim/go/testing/test3_a549_kbm7_chr18_sigpts.txt"
-//	writeOutputToFile(sigpts, &f2name)
-	//fmt.Println("all sig points:")
-	//fmt.Println(sigpts)
-	//fmt.Println("done calculating all p-values")
+	fmt.Println("done calculating all p-values")
 
 	// identify dominating points from significant ones
 	dompts := findDomPts(sigpts)
-	//fmt.Println("all sig and dom pts:")
-	//fmt.Println(dompts)
-	//fmt.Println("done finding dominating points")
+	fmt.Println("done finding dominating points")
 
 	// save results to a file
-//	writeOutputToFile(bdyvisnaive,outfile)
 	writeOutputToFile(dompts,outfile)
 	
 }
