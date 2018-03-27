@@ -1,5 +1,6 @@
 import argparse
 import numpy as np
+import math
 import csv
 import glob
 import sys
@@ -9,14 +10,31 @@ import matplotlib.pyplot as plt
 import seaborn
 import scipy.stats
 
-# input should be fileseed, ie /mnt/disk34/user/nsauerwa/go/outputs/localdiff/localdiff_*_100kb_pvals_optgamma_chr*.txt
 
-def readLocalDiffFiles(filelist):
+def readLocalDiffFiles(filelist,celltypelist):
     compdata = {}
     for filename in filelist:
         splitname = filename.split('_')
-        celltype1 = splitname[1]
-        celltype2 = splitname[2]
+        celltype1 = ''
+        celltype2 = ''
+        for i,split in enumerate(splitname):
+            if len(celltype1) > 0 and len(celltype2) > 0: break
+            if len(celltype1) == 0 and split in celltypelist:
+                celltype1 = split
+            elif len(celltype1) == 0 and split+'_D' == splitname[i]+'_'+splitname[i+1]:
+                celltype1 = split+'_D'
+            elif len(celltype1) == 0 and split+'_LA' == splitname[i]+'_'+splitname[i+1]:
+                celltype1 = split+'_LA'
+            elif len(celltype1) == 0 and split+'_R' == splitname[i]+'_'+splitname[i+1]:
+                celltype1 = split+'_R'
+            elif split in celltypelist:
+                celltype2 = split
+            elif split+'_D' in celltypelist and split+'_D' == splitname[i]+'_'+splitname[i+1]:
+                celltype2 = split+'_D'
+            elif split+'_LA' in celltypelist and split+'_LA' == splitname[i]+'_'+splitname[i+1]:
+                celltype2 = split+'_LA'
+            elif split+'_R' in celltypelist and split+'_R' == splitname[i]+'_'+splitname[i+1]:
+                celltype2 = split+'_R'
         chrloc = filename.find('chr')
         chrnum = int(filename[chrloc+3:-4])
         dictkey = (celltype1, celltype2, chrnum)
@@ -25,7 +43,8 @@ def readLocalDiffFiles(filelist):
             freader = csv.reader(f, delimiter='\t')
             freader.next() #skip header line
             for line in freader:
-                dictdata.append([float(x) for x in line])
+                if not math.isnan(float(line[2])):
+                    dictdata.append([float(x) for x in line])
             dictdata = np.array(dictdata)
         compdata[dictkey] = dictdata
     return compdata
@@ -47,19 +66,45 @@ def readGeneLocFile(filename='hg19_genelocs.txt'):
 
 def countNumGenes(genelocs,cancercolsums,numcancer, numnormal,res):
 
-    numlowcancersim = 0
-    totalgenes = 0
+    numlowcancercons_chr = np.zeros(22)
+    totalgenes_chr = np.zeros(22)
+    deltadists = [[] for i in xrange(22)]
     for gene in genelocs:
         chrnum = gene[0]
         genestart = gene[1]
         geneend = gene[2]
         genebin = int(round((genestart + geneend)/float(2)/res))
         if genebin > len(cancercolsums['nn'][chrnum-1])-1 or genebin > len(cancercolsums['cc'][chrnum-1])-1: continue
-        if cancercolsums['nn'][chrnum-1][genebin]/numnormal > cancercolsums['cc'][chrnum-1][genebin]/numcancer:
-            numlowcancersim += 1
-        totalgenes += 1
-    perclowcancersim = numlowcancersim/float(totalgenes)
-    return perclowcancersim
+        percsimnormal = cancercolsums['nn'][chrnum-1][genebin]/numnormal
+        percsimcancer = cancercolsums['cc'][chrnum-1][genebin]/numcancer
+        if percsimnormal > percsimcancer:
+            numlowcancercons_chr[chrnum-1] += 1
+        totalgenes_chr[chrnum-1] += 1
+        deltadists[chrnum-1].extend([percsimnormal - percsimcancer])
+    return numlowcancercons_chr,totalgenes_chr,deltadists
+
+def calcPvals(probbychr, totalnumgenes, totallowcancercons, cancergenechrs, cancergenelocs, numlowcancercons):
+
+    # for overall genome p-value:
+    pval1 = scipy.stats.hypergeom.sf(numlowcancercons-1,totalnumgenes,totallowcancercons,len(cancergenechrs))
+
+    # for p-value using same chromosomes as top ten cancer genes
+    # prob of any 9/10 being higher:
+    pval2 = 0
+    for i in xrange(len(cancergenechrs)):
+        currprob = 1
+        for genenum,chrnum in enumerate(cancergenechrs):
+            if i != genenum:
+                currprob = currprob*probbychr[chrnum-1]
+            else:
+                currprob = currprob*(1-probbychr[chrnum-1])
+        pval2 += currprob
+    # prob of all 10/10 being higher:
+    proball10 = 1.0
+    for i,chrnum in enumerate(cancergenechrs):
+        proball10 = proball10*probbychr[chrnum-1]
+    pval2 += proball10
+    return pval1, pval2
 
 def computeBasicStats(compdata):
     
@@ -148,19 +193,24 @@ def calcBinConsbyCondition(compdata, cancertypes, normaltypes, chrlengths, res =
         print 'Average conservation per bin for '+condition+' cell type pairs =', avgperbin/np.sum(chrlengths)/numpairs
     return binconsbycondition
 
-def plotCancerGeneData(binconsbycondition,filename,res,numcancer,numnormal):
+def plotCancerGeneData(binconsbycondition,filename,topten, chrnums, binnums,numcancer,numnormal,probbychr,totalprob,deltadists):
     # Figure 7 in manuscript
-
-    #probably need to change to accomodate new binconsbycondition data structure
-    topten = ('TP53','PIK3CA','PTEN','APC','VHL','KRAS','KMT2C','KMT2D','ARID1A','PBRM1')
-    chrnums = [17, 3, 10, 5, 3, 12, 7, 12, 1, 3]
-    # gene locations from ghr.nlm.nih.gov
-    genelocs = [[7668402, 7687550], [179148114, 179240093], [87863438, 87971930], [112707505, 112846239], [10141635, 10153670], [25204789, 25252093], [152134925, 152436642], [26696031, 26782110], [52545352, 52685933]]
-    #binnums = [76, 1791, 879, 1127, 101, 252, 1522, 490, 267, 526] # check that these binnums match
-    binnums = [(loc[0]+loc[1])/2/res for loc in genelocs]
 
     nnpairs = [binconsbycondition['nn'][chrnums[i]-1][binnum]/numnormal for i,binnum in enumerate(binnums)]
     ccpairs = [binconsbycondition['cc'][chrnums[i]-1][binnum]/numcancer for i,binnum in enumerate(binnums)]
+
+    cancergenedelta = np.array(nnpairs) - np.array(ccpairs)
+    fig = plt.figure()
+    ax = plt.gca()
+    plt.boxplot(deltadists)
+    plt.scatter(chrnums, cancergenedelta, s=15, color='red', marker='*')
+    #ax.set_ylim(0,1)
+    plt.xlabel('Chromosome')
+    plt.ylabel('% normal-normal similarity - % cancer-cancer similarity')
+    distfilename = filename[:-21] + 'deltadistplot_allchr.eps'
+    plt.savefig(distfilename,bbox_inches='tight')
+    plt.close(fig)
+    print 'Saved deltadistribution fig for all chr to',distfilename
 
     idx = np.arange(len(nnpairs))
     fig,ax = plt.subplots()
@@ -174,7 +224,6 @@ def plotCancerGeneData(binconsbycondition,filename,res,numcancer,numnormal):
     plt.savefig(filename,bbox_inches='tight')
     plt.close(fig)
     print 'Saved cancer gene plot to',filename
-    
     
 def plotBinConservation(bincons, res, centromerelocs, filename):
     #Figure 4 in manuscript
@@ -190,9 +239,9 @@ def plotBinConservation(bincons, res, centromerelocs, filename):
         plt.axvline(x=centromerelocs[i][1],color='r')
         ax.set_xlim(0,len(chrdata))
         ax.set_ylim(0,253)
-        ax.tick_params(axis='both',labelsize=4)
-        plt.ylabel('Number of similar pairs of cell types',fontsize=6)
-        plt.xlabel('Genomic position (100kb)',fontsize=6)
+        ax.tick_params(axis='both',labelsize=8)
+        plt.ylabel('Number of similar pairs of cell types',fontsize=10)
+        plt.xlabel('Genomic position (100kb)',fontsize=10)
         figname = filename+'_chr'+str(i+1)+'.eps'
         plt.savefig(figname,bbox_inches='tight')
         plt.close(fig)
@@ -213,7 +262,6 @@ def plotChrLevelBoxplot(chrdata, totalpairs, filename):
     plt.savefig(filename,bbox_inches='tight')
     plt.close(fig)
     print 'Saved chromosome-level similarity fig to',filename
-
 
 def calcPercSimilarity(compdata, chrlengths):
     # for data in Table 2, other values cited in mansucript (such as comparison to Dixon/Rao)
@@ -244,6 +292,15 @@ def calcPercSimilarity(compdata, chrlengths):
             totalsim[idx][1] += chrsum/totallen
         else:
             totalsim.append([celltypes, chrsum/totallen])
+    #totalsimsorted = sorted(totalsim,key=lambda x: x[1], reverse=True)
+    #for idx,x in enumerate(totalsimsorted):
+    #    if idx < 10:
+    #        print x
+    #    if x[0] == ('IMR90_D', 'IMR90_R'):
+    #        print x, idx
+    #    if x[0] == ('K562_LA', 'K562_R'):
+    #        print x, idx
+    #sys.exit()
     return totalsim,simbychr
 
 def analyzePercSimByChr(simbychr,numpairs):
@@ -256,6 +313,7 @@ def analyzePercSimByChr(simbychr,numpairs):
     # calculate average sim per chromosome, highest max, lowest min
     avgperchr = np.zeros(22)
     maxsim = [(),0,0]
+    minsim = [(),1000,1000]
     zeropairs = []
     for chrnum,data in simbychr.iteritems():
         for pair in data:
@@ -264,9 +322,14 @@ def analyzePercSimByChr(simbychr,numpairs):
                 maxsim[0] = pair[0]
                 maxsim[1] = chrnum
                 maxsim[2] = pair[1]
+            if pair[1] < minsim[2]:
+                minsim[0] = pair[0]
+                minsim[1] = chrnum
+                minsim[2] = pair[1]
             if pair[1] == 0:
                 zeropairs.append([pair[0], chrnum, pair[1]])
     print 'Maximally similar pair:', maxsim
+    print 'Minimally similar pair:', minsim
     print 'Number of zero pairs:',len(zeropairs)
     # find which chromosomes have highest and lowest average similarity
     minavg = [0,1]
@@ -282,16 +345,16 @@ def analyzePercSimByChr(simbychr,numpairs):
 def printDixonRaoPairs(percsimlist):
 
     for ctpair in percsimlist:
-        if ctpair[0] == ('IMR90dixon','hESC'):
+        if ctpair[0] == ('IMR90dixon','hESC') or ctpair[0] == ('IMR90_D', 'hESC'):
             print ctpair
-        if ctpair[0] == ('IMR90rao','GM12878'):
+        if ctpair[0] == ('IMR90rao','GM12878') or ctpair[0] == ('IMR90_R', 'GM12878'):
             print ctpair
         if ctpair[0][0] == 'GM12878':
             if ctpair[0][1] == 'HMEC':
                 print ctpair
             if ctpair[0][1] == 'HUVEC':
                 print ctpair
-            if ctpair[0][1] == 'K562rao':
+            if ctpair[0][1] == 'K562rao' or ctpair[0][1] == 'K562_R':
                 print ctpair
             if ctpair[0][1] == 'KBM7':
                 print ctpair
@@ -305,10 +368,19 @@ def plotPercSimHeatMap(percsimlist, filename):
     for line in percsimlist:
         celltypelist.extend([line[0][0], line[0][1]])
     celltypelist = list(set(celltypelist))
+    print celltypelist
     #put percsim data into matrix
     simmat = np.ones((len(celltypelist),len(celltypelist)))
     totalsim = sorted(percsimlist, key=lambda x:x[1], reverse=True)
-    for ctpair in totalsim:
+    # print ranks of IMR90 pairs and K562 pairs
+    for idx,ctpair in enumerate(totalsim):
+ #       print ctpair[0]
+        if ctpair[0] == ('IMR90rao','IMR90dixon') or ctpair[0] == ('IMR90_D', 'IMR90_R'):
+            print ctpair, idx
+        if ctpair[0] == ('K562rao', 'K562la') or ctpair[0] == ('K562_LA', 'K562_R'):
+            print ctpair, idx
+        if ctpair[0] == ('K562rao', 'KBM7') or ctpair[0] == ('K562_R', 'KBM7'):
+            print ctpair, idx
         simmat[celltypelist.index(ctpair[0][0]), celltypelist.index(ctpair[0][1])] = ctpair[1]
         simmat[celltypelist.index(ctpair[0][1]), celltypelist.index(ctpair[0][0])] = ctpair[1]
     # sort matrix by cell types with highest average similarity
@@ -318,17 +390,16 @@ def plotPercSimHeatMap(percsimlist, filename):
     simmat = simmat[idx,:]
     # fix some of the cell type names
     for i,celltype in enumerate(celltypelist):
-        if celltype == 'IMR90rao':
+        if celltype == 'IMR90_R' or celltype == 'IMR90rao':
             celltypelist[i] = 'IMR90(R)'
-        if celltype == 'K562rao':
+        if celltype == 'K562_R' or celltype == 'K562rao':
             celltypelist[i] = 'K562(R)'
-        if celltype == 'IMR90dixon':
+        if celltype == 'IMR90_D' or celltype == 'IMR90dixon':
             celltypelist[i] = 'IMR90(D)'
-        if celltype == 'K562la':
+        if celltype == 'K562_LA' or celltype == 'K562la':
             celltypelist[i] = 'K562(LA)'
     celllist = [celltypelist[i] for i in idx]
-    #plot heatmap
-    plotHeatMap(simmat,celltypelist,filename)
+    plotHeatMap(simmat,celllist,filename)
 
 def writeToFile(data, filename):
     
@@ -370,7 +441,11 @@ def plotIntervalResults(compdata,tadlists,chrlength,newdata,figname):
     ax = plt.gca()
     # plot stars over newdata points (for Figure 1, used all boundary pts, then just significant points, then just dominating ones)
     if len(newdata)>0:
-        ax.scatter(newdata[:,1], matsize-newdata[:,0], s=15, color='red', marker='*')
+        for interval in newdata:
+            plt.plot((interval[0]-1,interval[1]),(matsize-interval[1],matsize-interval[1]),'r')
+            plt.plot((interval[0]-1,interval[0]-1),(matsize-interval[0]+1,matsize-interval[1]),'r')
+            dom3Artist = plt.Line2D((0,1),(0,0), color='red', linestyle='solid')
+#        ax.scatter(newdata[:,1], matsize-newdata[:,0], s=15, color='red', marker='*')
     else: # to just plot TAD sets alone
         ax.set_facecolor('white')
         plt.tick_params(axis='x',labelbottom='off')
@@ -410,13 +485,13 @@ def readIntermedFiles(filename):
 def main(fileseed, res, cancertypes, normaltypes, armatusfilename, chrlengthfile, centromerefile, genelocfile, scatterplotfile, outputloc):
 
     if len(cancertypes) == 0:
-        cancer = ['K562la','K562rao','KBM7','A549','Caki2','G401','LNCaP-FGC','NCI-H460','Panc1','RPMI-7951','SJCRH30','SKMEL5','SKNDZ','SKNMC','T47D']
+        cancer = ['K562_LA','K562_R','KBM7','A549','Caki2','G401','LNCaP-FGC','NCI-H460','Panc1','RPMI-7951','SJCRH30','SKMEL5','SKNDZ','SKNMC','T47D']
     else:
         cancer = cancertypes
     if len(normaltypes) == 0:
-        noncancer = ['IMR90rao','GM12878','HMEC','HUVEC','NHEK','IMR90dixon','hESC','GM06990']
+        noncancer = ['IMR90_R','GM12878','HMEC','HUVEC','NHEK','IMR90_D','hESC','GM06990']
     else:
-        noncancer = cancertypes
+        noncancer = normaltypes
 
     # if no file for chrlengths and centromere locations are input, use these (hg19)
     if len(chrlengthfile) == 0:
@@ -437,7 +512,7 @@ def main(fileseed, res, cancertypes, normaltypes, armatusfilename, chrlengthfile
         genelocfile = 'hg19_genelocs.txt'
 
     filelist = glob.glob(fileseed)
-    compdata = readLocalDiffFiles(filelist)
+    compdata = readLocalDiffFiles(filelist,cancer+noncancer)
     numpairs = len(compdata)/22 # should be 253 in our case
 
     # to get data for sec 3.1 of manuscript
@@ -448,7 +523,9 @@ def main(fileseed, res, cancertypes, normaltypes, armatusfilename, chrlengthfile
     plotBinConservation(bincons, res, centromerelocs, outputloc+'binconservationplots')
     # calculate percent similarities
     totalsim, simbychr = calcPercSimilarity(compdata, chrlengths)
-    # compaire percsim to Dixon and Rao results
+    totalsimsorted = sorted(totalsim,key=lambda x: x[1], reverse=True)
+
+    # compare percsim to Dixon and Rao results
     printDixonRaoPairs(totalsim)
     # analyze percent similarity data
     analyzePercSimByChr(simbychr, numpairs)
@@ -467,13 +544,26 @@ def main(fileseed, res, cancertypes, normaltypes, armatusfilename, chrlengthfile
         else:
             continue
         plotChrLevelBoxplot(condbincons, totalpairs, filename)
+    
+
     # analyze cancer v noncancer data
+    toptencancer = ('TP53','PIK3CA','PTEN','APC','VHL','KRAS','KMT2C','KMT2D','ARID1A','PBRM1')
+    cancerchrnums = [17, 3, 10, 5, 3, 12, 7, 12, 1, 3]
+    # gene locations from ghr.nlm.nih.gov
+    cancergenelocs = [[7668402, 7687550], [179148114, 179240093], [87863438, 87971930], [112707505, 112846239], [10141635, 10153670], [25204789, 25252093], [152134925, 152436642], [49018975, 49060884], [26696031, 26782110], [52545352, 52685933]]
+    cancerbinnums = [(loc[0]+loc[1])/2/res for loc in cancergenelocs]
+
     genelocs = readGeneLocFile(genelocfile)
-    numgenes = countNumGenes(genelocs, binconsconditional, numcancerpairs, numnormalpairs, res)
-    print 'Percent of all human cancer genes with higher structural conservation in normal-normal pairs = ',numgenes
+    probbychr,genesperchr,deltadists = countNumGenes(genelocs, binconsconditional, numcancerpairs, numnormalpairs, res)
+    totalprob = np.sum(probbychr)/np.sum(genesperchr)
+    print 'Percent of all human genes with higher structural conservation in normal-normal pairs = ',totalprob
+    overallpval, chrpval = calcPvals(np.divide(probbychr,genesperchr), np.sum(genesperchr), np.sum(probbychr), cancerchrnums, cancerbinnums, 9)
+    print 'Probability of at least 9/10 random genes with higher similarity among normal pairs =',overallpval
+    print 'Probability of at least 9/10 genes from the same chromosomes as top 10 with higher similarity among normal pairs =',chrpval
     # plot Figure 7
     filename = outputloc+'cancergenebarplot.eps'
-    plotCancerGeneData(binconsconditional, filename, res, numcancerpairs, numnormalpairs)
+    plotCancerGeneData(binconsconditional, filename, toptencancer, cancerchrnums, cancerbinnums, numcancerpairs, numnormalpairs, probbychr, totalprob, deltadists)
+
 
     # make figures used for Figs 1 and 3
     if len(armatusfilename) > 0:
@@ -493,6 +583,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-i', type=str, help='fileseed of files to analyze, with wildcard characters')
+    # fileseed, ie '/home/go/outputs/localdiff/localdiff_*optgamma_chr*.txt'
     parser.add_argument('-r', type=int, help='resolution of Hi-C data')
     parser.add_argument('-a', default=[], nargs='+', help='Armatus files for plotting TADs')
     parser.add_argument('-cl', default='', type=str, help='File containing chromosome lengths')
@@ -504,5 +595,6 @@ if __name__ == "__main__":
     parser.add_argument('-o', default='', type=str, help='Path to location for output files/figures to be written')
 
     args = parser.parse_args()
+
     main(args.i, args.r, args.c, args.n, args.a, args.cl, args.cm, args.gl, args.p, args.o)
 
