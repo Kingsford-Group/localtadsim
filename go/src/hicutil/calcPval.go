@@ -5,7 +5,7 @@ import (
 	"math/rand"
 //	"sync"
 //	"runtime"
-	"fmt"
+//	"fmt"
 //	"os"
 )
 
@@ -14,7 +14,7 @@ func CalcPval(intvl1 [][]int, intvl2 [][]int, n int, vival float64, convcond flo
 	//shuffvi1 := make([]float64, nshuffles)
 	//shuffvi2 := make([]float64, nshuffles)
 
-	fmt.Println("convcond =",convcond)
+	//fmt.Println("convcond =",convcond)
 
 	var shuffvi []float64
 	var pval1 float64
