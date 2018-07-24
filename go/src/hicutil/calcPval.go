@@ -9,16 +9,16 @@ import (
 //	"os"
 )
 
-func CalcPval(intvl1 [][]int, intvl2 [][]int, n int, vival float64, convcond float64) float64 {
+func CalcPval(intvl1 [][]int, intvl2 [][]int, n int, vival float64, convcond float64, r *rand.Rand) float64 {
 // more efficient to calculate VI as entropy(intvl1) + entropy(intvl2) - 2*mutinfo, because only need to recalculate mutual info on each iteration
 	//shuffvi1 := make([]float64, nshuffles)
 	//shuffvi2 := make([]float64, nshuffles)
 
 	//fmt.Println("convcond =",convcond)
 
-	var shuffvi []float64
+	//var shuffvi []float64
 	var pval1 float64
-	var pval2 float64
+	var pval2 float64	
 
 	h1 := CalcEntropy(intvl1,n)
 	h2 := CalcEntropy(intvl2,n)
@@ -31,26 +31,35 @@ func CalcPval(intvl1 [][]int, intvl2 [][]int, n int, vival float64, convcond flo
 	for c,clus := range intvl2 {
 		clus2sizes[c] = clus[1]-clus[0]+1 }
 	
+	overlaps1 := make([][]int, len(intvl1))
+	for i,_ := range intvl1 {
+		overlaps1[i] = make([]int, len(intvl2))
+		}
+	overlaps2 := make([][]int, len(intvl1))
+	for i,_ := range intvl1 {
+                overlaps2[i] = make([]int, len(intvl2))
+        }
+
 	count := 0
 	shuffnum := 0
 	prevpvaldiffs := []float64{1000.0,1000.0,1000.0,1000.0}
 	prevpval := 1000.0
-
-	keepshuffling := true 
+	keepshuffling := true
+ 
 	for keepshuffling {
 		shuffnum++
 
 		// randomly shuffle domain lengths in each list
-		newlist,permsizes := shuffledoms(clus1sizes)
+		newlist,permsizes := shuffledoms(clus1sizes, r)
 		
 		//calc VI for newly shuffled domains
-		overlaps := CalcOverlaps(newlist, intvl2)
-		mutinfo := CalcMutInfo(overlaps, permsizes, clus2sizes, n)
+		CalcOverlapsPtr(newlist, intvl2, &overlaps1) //change
+		mutinfo := CalcMutInfo(overlaps1, permsizes, clus2sizes, n)
 		
-		shuffvi = append(shuffvi,(h1+h2-2*mutinfo)/math.Log(float64(n))) // divide by log(n) to normalize
+		shuffvi := (h1+h2-2*mutinfo)/math.Log(float64(n)) // divide by log(n) to normalize
 		
 		// calc current pval, and pvaldiffs
-		if shuffvi[shuffnum-1] - vival < 1e-10 { count++ }
+		if shuffvi - vival < 1e-10 { count++ }
 		pval1 = float64(count+1)/float64(shuffnum+1)
 
 		prevpvaldiffs = append(prevpvaldiffs[1:],[]float64{math.Abs(prevpval-pval1)}...)
@@ -63,7 +72,6 @@ func CalcPval(intvl1 [][]int, intvl2 [][]int, n int, vival float64, convcond flo
 	}
 
 	// re-initialize variables
-	shuffvi = nil
 	shuffnum = 0
 	count = 0
 	prevpvaldiffs = []float64{1000.0,1000.0,1000.0,1000.0}
@@ -73,14 +81,14 @@ func CalcPval(intvl1 [][]int, intvl2 [][]int, n int, vival float64, convcond flo
 	for keepshuffling {
 		shuffnum++
 
-		newlist,permsizes := shuffledoms(clus2sizes)
-		overlaps := CalcOverlaps(intvl1, newlist)
-		mutinfo := CalcMutInfo(overlaps, clus1sizes, permsizes, n)
+		newlist,permsizes := shuffledoms(clus2sizes, r)
+		CalcOverlapsPtr(intvl1, newlist, &overlaps2)
+		mutinfo := CalcMutInfo(overlaps2, clus1sizes, permsizes, n)
 		
-		shuffvi = append(shuffvi, (h1+h2-2*mutinfo)/math.Log(float64(n))) // divide by log(n) to normalize
+		shuffvi := (h1+h2-2*mutinfo)/math.Log(float64(n)) // divide by log(n) to normalize
 		
 		// calc current pval, and pvaldiff
-		if shuffvi[shuffnum-1] - vival < 1e-10 { count++ }
+		if shuffvi - vival < 1e-10 { count++ }
 		pval2 = float64(count+1)/float64(shuffnum+1)
 
 		prevpvaldiffs = append(prevpvaldiffs[1:],[]float64{math.Abs(prevpval-pval2)}...)
@@ -91,14 +99,13 @@ func CalcPval(intvl1 [][]int, intvl2 [][]int, n int, vival float64, convcond flo
 		prevpval = pval2
 	}
 	pval := (pval1 + pval2)/2.0
-
 	return pval
 }
 
-func shuffledoms(clussizes []int) ([][]int, []int) {
+func shuffledoms(clussizes []int, r *rand.Rand) ([][]int, []int) {
 
 	permsizes := make([]int, len(clussizes))
-	perm := rand.Perm(len(clussizes))
+	perm := r.Perm(len(clussizes))
 	for j,v := range perm {
 		permsizes[v] = clussizes[j]
 	}

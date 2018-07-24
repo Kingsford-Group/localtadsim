@@ -20,13 +20,14 @@ func MultHypTestBH(pvals []float64) int {
 		thresh[i] = float64(i)*alpha/float64(numtests)
 	}
 	// find greatest index where pval < thresh
-	imax := numtests
+	imax := -1
 	//fmt.Println(len(pvals), len(thresh))
 	for i := numtests-1; i >= 0; i-- {
-		imax = i
 		//fmt.Println(i)
-		if pvals[i] < thresh[i] { break }
+		if pvals[i] < thresh[i] { 
+			imax = i
+			break 
+		}
 	}
-	// return imax value? or accepted pvals?
 	return imax
 }
