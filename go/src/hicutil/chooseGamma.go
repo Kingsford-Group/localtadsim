@@ -8,7 +8,7 @@ import (
 	"strings"
 	"strconv"
 	"sort"
-	"fmt"
+//	"fmt"
 )
 
 func ChooseGamma(tadlen float64,fileseed string, res int) ([][]int, float64) {
@@ -54,7 +54,7 @@ func ChooseGamma(tadlen float64,fileseed string, res int) ([][]int, float64) {
 		}
 		// find median of slice
 		medtadlen := median(tadsizes)
-		fmt.Println(g,medtadlen)
+//		fmt.Println(g,medtadlen)
 //		meantadlen := float64(sumtadsize)/float64(len(tadlist))
 //		currdist := math.Abs(meantadlen - tadlen)
 		currdist := math.Abs(medtadlen - tadlen)
@@ -63,7 +63,7 @@ func ChooseGamma(tadlen float64,fileseed string, res int) ([][]int, float64) {
 			optgamma = g
 		}
 	}
-	fmt.Println(fileseed,optgamma)
+//	fmt.Println(fileseed,optgamma)
 	return tadsets[optgamma], optgamma
 }
 
