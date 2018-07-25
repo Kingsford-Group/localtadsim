@@ -8,16 +8,18 @@ import (
 	"strings"
 	"strconv"
 	"sort"
-//	"fmt"
+	"fmt"
 )
 
 func ChooseGamma(tadlen float64,fileseed string, res int) ([][]int, float64) {
 
 	filelist,err := filepath.Glob(fileseed+"*")
+//	sort.Strings(filelist)
 //	fmt.Println(filelist)
 	if err != nil {
 		log.Fatal(err)
 	}
+	var gammalist []float64
 	tadsets := make(map[float64][][]int)
 	for _,file := range filelist {
 		fparts := strings.Split(file, ".")
@@ -35,10 +37,14 @@ func ChooseGamma(tadlen float64,fileseed string, res int) ([][]int, float64) {
 		if err != nil {
 			log.Fatal(err)
 		}
+		gammalist = append(gammalist, gamma)
 		tadsets[gamma] = ReadTADFile(file, res)
 	}
+	sort.Float64s(gammalist)
 	var disttotadlen,optgamma float64
-	for g,tadlist := range tadsets {
+	for _,g := range gammalist {
+		tadlist := tadsets[g]
+//	for g,tadlist := range tadsets {
 //		var sumtadsize int
 		var tadsizes []int
 		for _,tad := range tadlist {
@@ -48,6 +54,7 @@ func ChooseGamma(tadlen float64,fileseed string, res int) ([][]int, float64) {
 		}
 		// find median of slice
 		medtadlen := median(tadsizes)
+		fmt.Println(g,medtadlen)
 //		meantadlen := float64(sumtadsize)/float64(len(tadlist))
 //		currdist := math.Abs(meantadlen - tadlen)
 		currdist := math.Abs(medtadlen - tadlen)
@@ -56,7 +63,7 @@ func ChooseGamma(tadlen float64,fileseed string, res int) ([][]int, float64) {
 			optgamma = g
 		}
 	}
-//	fmt.Println(fileseed,optgamma)
+	fmt.Println(fileseed,optgamma)
 	return tadsets[optgamma], optgamma
 }
 
