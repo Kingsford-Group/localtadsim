@@ -277,6 +277,29 @@ def compute_matrix_clus(dist_mat,method="ward"):
     #return seriated_dist, res_order, res_linkage       
     return res_order
 
+def computeRawContactNumber(pathtohic,celltypelist):
+    rawcontactcounts = {}
+    for celltype in celltypelist:
+        rawhicfiles = pathtohic+celltype+'/matrix/*rep*/raw/100000/*rep*_100000.matrix'
+        rawhicfiles = glob.glob(rawhicfiles)
+        if len(rawhicfiles) == 0:
+            print 'no replicate files found for', celltype
+        else:
+            rawcounts = [0] * len(rawhicfiles)
+            for filename in rawhicfiles:
+                contactcount = 0
+                fileparts = filename.split('/')
+                idx = [i for i,s in enumerate(fileparts) if 'rep' in s]
+                repnum = fileparts[idx[-2]][-1]
+                with open(filename, 'rb') as f:
+                    freader = csv.reader(f, delimiter='\t')
+                    for line in freader:
+                        contactcount += float(line[2])
+                rawcounts[int(repnum)-1] = contactcount
+            rawcontactcounts[celltype] = rawcounts
+            print 'computed raw counts for',celltype
+    return rawcontactcounts
+
 def readRawCountsFile(filename):
     with open(filename,'rb') as f:
         freader = csv.reader(f, delimiter='\t')

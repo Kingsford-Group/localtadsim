@@ -1,140 +1,87 @@
-K562rao_rep1 K562rao_rep2 0.969827 
-hESC_DpnII_rep_rep1 hESC_DpnII_rep_rep3 0.945504 
-hESC_DpnII_rep_rep1 hESC_DpnII_rep_rep2 0.952195 
-hESC_DpnII_rep_rep3 hESC_DpnII_rep_rep2 0.959263 
-IMR90rao_rep1 IMR90rao_rep2 0.972586 
-hESC_Dixon2015_rep1 hESC_Dixon2015_rep2 0.954577 
-IMR90dixon_rep1 IMR90dixon_rep2 0.959241 
-IMR90_RI_rep1 IMR90_RI_rep2 0.962421 
-hESC_rep1 hESC_rep2 0.886498 
-HepSin_rep1 HepSin_rep2 0.985607 
-IMR90_normal_rep1 IMR90_normal_rep5 0.937627 
-IMR90_normal_rep1 IMR90_normal_rep3 0.904633 
-IMR90_normal_rep1 IMR90_normal_rep4 0.916087 
-IMR90_normal_rep1 IMR90_normal_rep6 0.932771 
-IMR90_normal_rep1 IMR90_normal_rep2 0.960685 
-IMR90_normal_rep5 IMR90_normal_rep3 0.927116 
-IMR90_normal_rep5 IMR90_normal_rep4 0.932630 
-IMR90_normal_rep5 IMR90_normal_rep6 0.939015 
-IMR90_normal_rep5 IMR90_normal_rep2 0.949170 
-IMR90_normal_rep3 IMR90_normal_rep4 0.939719 
-IMR90_normal_rep3 IMR90_normal_rep6 0.933719 
-IMR90_normal_rep3 IMR90_normal_rep2 0.937584 
-IMR90_normal_rep4 IMR90_normal_rep6 0.937415 
-IMR90_normal_rep4 IMR90_normal_rep2 0.941665 
-IMR90_normal_rep6 IMR90_normal_rep2 0.948252 
-IMR90_tnfa_rep1 IMR90_tnfa_rep5 0.841278 
-IMR90_tnfa_rep1 IMR90_tnfa_rep3 0.887671 
-IMR90_tnfa_rep1 IMR90_tnfa_rep4 0.890147 
-IMR90_tnfa_rep1 IMR90_tnfa_rep6 0.888336 
-IMR90_tnfa_rep1 IMR90_tnfa_rep2 0.931849 
-IMR90_tnfa_rep5 IMR90_tnfa_rep3 0.929670 
-IMR90_tnfa_rep5 IMR90_tnfa_rep4 0.931214 
-IMR90_tnfa_rep5 IMR90_tnfa_rep6 0.925647 
-IMR90_tnfa_rep5 IMR90_tnfa_rep2 0.913171 
-IMR90_tnfa_rep3 IMR90_tnfa_rep4 0.965214 
-IMR90_tnfa_rep3 IMR90_tnfa_rep6 0.959166 
-IMR90_tnfa_rep3 IMR90_tnfa_rep2 0.954385 
-IMR90_tnfa_rep4 IMR90_tnfa_rep6 0.962319 
-IMR90_tnfa_rep4 IMR90_tnfa_rep2 0.958900 
-IMR90_tnfa_rep6 IMR90_tnfa_rep2 0.952735 
-KBM7_rep1 KBM7_rep2 0.978215 
-LNCaP-FGC_rep1 LNCaP-FGC_rep2 0.831036 
-NCI-H460_rep1 NCI-H460_rep2 0.952755 
-Panc1_rep1 Panc1_rep2 0.959273 
-RPMI-7951_rep1 RPMI-7951_rep2 0.953944 
-SKMEL5_rep1 SKMEL5_rep2 0.905199 
-SKNDZ_rep1 SKNDZ_rep2 0.747781 
-SKNMC_rep1 SKNMC_rep2 0.860976 
-T47D_rep1 T47D_rep2 0.953969 
-hESC_DpnII_rep1 hESC_DpnII_rep2 0.989158 
-no replicates found for IMR90_RI
-no replicates found for IMR90_flav
-no replicates found for IMR90dixon
-no replicates found for IMR90rao
-no replicates found for K562rao
-no replicates found for NHEK
-no replicates found for SkelMuscleF51
-no replicates found for SkelMuscleF53
-no replicates found for SkelMuscleM37
-no replicates found for SkelMuscleM54
-no replicates found for TransColonF51
-no replicates found for TransColonF53
-no replicates found for TransColonM37
-no replicates found for TransColonM54
-no replicates found for hESC
-no replicates found for hESC_Dixon2015
-no replicates found for hESC_DpnII_rep
-no replicates found for hESC_FP
-no replicates found for hESC_HindIII
-no replicates found for hESC_Jin
-no replicates found for hESC_NcoI
-NCI-H460_rep1 NCI-H460_rep2 0.952755 
-Panc1_rep1 Panc1_rep2 0.959273 
-RPMI-7951_rep1 RPMI-7951_rep2 0.953944 
-SKMEL5_rep1 SKMEL5_rep2 0.905199 
-SKNDZ_rep1 SKNDZ_rep2 0.747781 
-SKNMC_rep1 SKNMC_rep2 0.860976 
-T47D_rep1 T47D_rep2 0.953969 
-hESC_DpnII_rep1 hESC_DpnII_rep2 0.989158 
-no replicates found for NHEK
-no replicates found for SkelMuscleF51
-no replicates found for SkelMuscleF53
-no replicates found for SkelMuscleM37
-no replicates found for SkelMuscleM54
-no replicates found for TransColonF51
-no replicates found for TransColonF53
-no replicates found for TransColonM37
-no replicates found for TransColonM54
-no replicates found for hESC
-no replicates found for hESC_Dixon2015
-no replicates found for hESC_DpnII_rep
-no replicates found for hESC_FP
-no replicates found for hESC_HindIII
-no replicates found for hESC_Jin
-no replicates found for hESC_NcoI
-A549_rep1 A549_rep2 0.948157 
-ACHN_rep1 ACHN_rep2 0.907987 
-AstrocyteCerebellum_rep1 AstrocyteCerebellum_rep2 0.987830 
-AstrocyteSpinalCord_rep1 AstrocyteSpinalCord_rep2 0.948868 
-BrainMicroEndo_rep1 BrainMicroEndo_rep2 0.942443 
-BrainPericyte_rep1 BrainPericyte_rep2 0.855369 
-Caki2_rep1 Caki2_rep2 0.960531 
-DLD1_rep1 DLD1_rep2 0.964504 
-EndomMicroEndoth_rep1 EndomMicroEndoth_rep2 0.934231 
-G401_rep1 G401_rep2 0.970080 
-GM12878_rep1 GM12878_rep2 0.990448 
-GM19238_rep2 GM19238_rep1 0.964161 
-GM19239_rep2 GM19239_rep1 0.958275 
-GM19240_rep2 GM19240_rep1 0.955677 
-GM20431_rep1 GM20431_rep3 0.906271 
-GM20431_rep1 GM20431_rep2 0.913654 
-GM20431_rep3 GM20431_rep2 0.953989 
-HFF-c6_rep2 HFF-c6_rep1 0.976342 
-HFF-hTERT_DpnII_rep1 HFF-hTERT_DpnII_rep2 0.991122 
-HFF-hTERT_HindIII_beads_rep1 HFF-hTERT_HindIII_beads_rep2 0.988409 
-HFF-hTERT_HindIII_techreps_rep1 HFF-hTERT_HindIII_techreps_rep3 0.944823 
-HFF-hTERT_HindIII_techreps_rep1 HFF-hTERT_HindIII_techreps_rep4 0.944969 
-HFF-hTERT_HindIII_techreps_rep1 HFF-hTERT_HindIII_techreps_rep2 0.927269 
-HFF-hTERT_HindIII_techreps_rep3 HFF-hTERT_HindIII_techreps_rep4 0.977215 
-HFF-hTERT_HindIII_techreps_rep3 HFF-hTERT_HindIII_techreps_rep2 0.959204 
-HFF-hTERT_HindIII_techreps_rep4 HFF-hTERT_HindIII_techreps_rep2 0.958459 
-HG00512_rep2 HG00512_rep1 0.902919 
-HG00513_rep2 HG00513_rep1 0.922967 
-HG00514_rep2 HG00514_rep1 0.920214 
-HG00731_rep2 HG00731_rep1 0.921182 
-HG00732_rep2 HG00732_rep1 0.927155 
-HG00733_rep2 HG00733_rep1 0.914621 
-HMEC_rep1 HMEC_rep2 0.955129 
-HepSin_rep1 HepSin_rep2 0.985607 
-IMR90_normal_rep1 IMR90_normal_rep5 0.937627 
-IMR90_normal_rep1 IMR90_normal_rep3 0.904633 
-IMR90_normal_rep1 IMR90_normal_rep4 0.916087 
-IMR90_normal_rep1 IMR90_normal_rep6 0.932771 
-IMR90_normal_rep1 IMR90_normal_rep2 0.960685 
-IMR90_normal_rep5 IMR90_normal_rep3 0.927116 
-IMR90_normal_rep5 IMR90_normal_rep4 0.932630 
-Lung_rep1 Lung_rep2 0.780294 
-Psoas_rep1 Psoas_rep2 0.809694 
-Pancreas_rep1 Pancreas_rep2 0.785481 
-Spleen_rep1 Spleen_rep2 0.836723 
+HFF-hTERT_HindIII_techreps_rep3 HFF-hTERT_HindIII_techreps_rep2 0.959204
+EndomMicroEndoth_rep1 EndomMicroEndoth_rep2 0.934231
+IMR90_normal_rep3 IMR90_normal_rep6 0.933719
+HG00512_rep2 HG00512_rep1 0.902919
+hESC_rep1 hESC_rep2 0.886498
+IMR90_tnfa_rep3 IMR90_tnfa_rep2 0.954385
+hESC_DpnII_rep_rep1 hESC_DpnII_rep_rep2 0.952195
+IMR90_tnfa_rep4 IMR90_tnfa_rep2 0.9589
+IMR90_tnfa_rep1 IMR90_tnfa_rep5 0.841278
+HFF-hTERT_DpnII_rep1 HFF-hTERT_DpnII_rep2 0.991122
+HFF-c6_rep2 HFF-c6_rep1 0.976342
+HFF-hTERT_HindIII_techreps_rep1 HFF-hTERT_HindIII_techreps_rep2 0.927269
+ACHN_rep1 ACHN_rep2 0.907987
+GM19238_rep2 GM19238_rep1 0.964161
+Caki2_rep1 Caki2_rep2 0.960531
+GM19239_rep2 GM19239_rep1 0.958275
+HG00732_rep2 HG00732_rep1 0.927155
+AstrocyteCerebellum_rep1 AstrocyteCerebellum_rep2 0.98783
+IMR90_tnfa_rep1 IMR90_tnfa_rep3 0.887671
+IMR90rao_rep1 IMR90rao_rep2 0.972586
+IMR90_normal_rep5 IMR90_normal_rep4 0.93263
+IMR90_tnfa_rep3 IMR90_tnfa_rep6 0.959166
+AstrocyteSpinalCord_rep1 AstrocyteSpinalCord_rep2 0.948868
+HFF-hTERT_HindIII_techreps_rep1 HFF-hTERT_HindIII_techreps_rep4 0.944969
+IMR90_tnfa_rep4 IMR90_tnfa_rep6 0.962319
+IMR90_tnfa_rep5 IMR90_tnfa_rep4 0.931214
+Spleen_rep1 Spleen_rep2 0.836723
+HG00513_rep2 HG00513_rep1 0.922967
+HFF-hTERT_HindIII_techreps_rep1 HFF-hTERT_HindIII_techreps_rep3 0.944823
+HFF-hTERT_HindIII_techreps_rep3 HFF-hTERT_HindIII_techreps_rep4 0.977215
+IMR90_normal_rep1 IMR90_normal_rep3 0.904633
+IMR90_tnfa_rep1 IMR90_tnfa_rep4 0.890147
+IMR90_normal_rep3 IMR90_normal_rep4 0.939719
+IMR90_normal_rep1 IMR90_normal_rep5 0.937627
+HepSin_rep1 HepSin_rep2 0.985607
+BrainMicroEndo_rep1 BrainMicroEndo_rep2 0.942443
+NCI-H460_rep1 NCI-H460_rep2 0.952755
+G401_rep1 G401_rep2 0.97008
+GM20431_rep3 GM20431_rep2 0.953989
+IMR90_normal_rep1 IMR90_normal_rep2 0.960685
+A549_rep1 A549_rep2 0.948157
+BrainPericyte_rep1 BrainPericyte_rep2 0.855369
+IMR90_normal_rep1 IMR90_normal_rep4 0.916087
+IMR90_tnfa_rep1 IMR90_tnfa_rep2 0.931849
+IMR90_RI_rep1 IMR90_RI_rep2 0.962421
+IMR90_normal_rep5 IMR90_normal_rep3 0.927116
+IMR90_normal_rep1 IMR90_normal_rep6 0.932771
+IMR90_normal_rep4 IMR90_normal_rep6 0.937415
+GM20431_rep1 GM20431_rep2 0.913654
+IMR90_tnfa_rep5 IMR90_tnfa_rep3 0.92967
+Panc1_rep1 Panc1_rep2 0.959273
+hESC_DpnII_rep1 hESC_DpnII_rep2 0.989158
+GM19240_rep2 GM19240_rep1 0.955677
+IMR90_normal_rep5 IMR90_normal_rep6 0.939015
+HMEC_rep1 HMEC_rep2 0.955129
+hESC_Dixon2015_rep1 hESC_Dixon2015_rep2 0.954577
+IMR90_tnfa_rep3 IMR90_tnfa_rep4 0.965214
+LNCaP-FGC_rep1 LNCaP-FGC_rep2 0.831036
+IMR90_tnfa_rep5 IMR90_tnfa_rep6 0.925647
+GM12878_rep1 GM12878_rep2 0.990448
+Pancreas_rep1 Pancreas_rep2 0.785481
+IMR90_normal_rep6 IMR90_normal_rep2 0.948252
+DLD1_rep1 DLD1_rep2 0.964504
+hESC_DpnII_rep_rep1 hESC_DpnII_rep_rep3 0.945504
+HG00733_rep2 HG00733_rep1 0.914621
+IMR90_tnfa_rep1 IMR90_tnfa_rep6 0.888336
+IMR90_normal_rep3 IMR90_normal_rep2 0.937584
+Lung_rep1 Lung_rep2 0.780294
+T47D_rep1 T47D_rep2 0.953969
+IMR90_normal_rep4 IMR90_normal_rep2 0.941665
+K562rao_rep1 K562rao_rep2 0.969827
+KBM7_rep1 KBM7_rep2 0.978215
+HFF-hTERT_HindIII_techreps_rep4 HFF-hTERT_HindIII_techreps_rep2 0.958459
+IMR90_normal_rep5 IMR90_normal_rep2 0.94917
+IMR90dixon_rep1 IMR90dixon_rep2 0.959241
+SKNDZ_rep1 SKNDZ_rep2 0.747781
+RPMI-7951_rep1 RPMI-7951_rep2 0.953944
+IMR90_tnfa_rep5 IMR90_tnfa_rep2 0.913171
+HFF-hTERT_HindIII_beads_rep1 HFF-hTERT_HindIII_beads_rep2 0.988409
+SKMEL5_rep1 SKMEL5_rep2 0.905199
+HG00514_rep2 HG00514_rep1 0.920214
+HG00731_rep2 HG00731_rep1 0.921182
+SKNMC_rep1 SKNMC_rep2 0.860976
+hESC_DpnII_rep_rep3 hESC_DpnII_rep_rep2 0.959263
+IMR90_tnfa_rep6 IMR90_tnfa_rep2 0.952735
+Psoas_rep1 Psoas_rep2 0.809694
+GM20431_rep1 GM20431_rep3 0.906271
