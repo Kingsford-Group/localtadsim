@@ -1,0 +1,23 @@
+This folder contains all code needed to reproduce the analysis run in "Structural variability analysis of topologically associated domains as revealed by Hi-C", by Natalie Sauerwald, Akshat Singhal, and Carl Kingsford.
+
+Accession numbers for the raw data are available in Table 1 of the manuscript, and all data were processed from raw reads to Hi-C matrices using HiC-Pro. An example configuration file is found here: data/config_HindIII.txt, and HiC-Pro was then run using the command:
+HiC-Pro -c config.txt -i data -o hicpro
+
+After Hi-C matrices were generated for all samples, TADs were computed on all intra-chromosomal matrices with the Armatus software for gamma values from 0 to 1, with a stepsize of 0.1 at 100kb resolution.
+
+These TAD sets were then compared by HiCRep using the run_hicrep.r script, by JI in the ji_analysis.py script, and by TADsim (code also found in this repo). HiCRep values can be found in the "hicrep_results_*.txt" files. TADsim includes a procedure to optimize the Armatus parameter (gamma) choice by selecting the TAD set with median TAD size closest to the expected 880kb. The parameters chosen can be found in the "optgammafilenames_*.txt" files. These are also the input files to the ji_analysis.py script.
+
+Note that the *_analysis.py files contain several functions that depend on the directory structure and file naming we used, so these may have to be adapted for use in other contexts. However, the tadanalysisutil.py and hicutil.py files both include much more generalized functions which can be more easily used for future analyses, not simply to reproduce our results.
+
+There is a procedure to compute contact counts included in the tadanalysisutil.py file, but it is quite slow so these have been precomputed for our samples and included in the rawcontactcounts.txt file.
+
+In order to reproduce the HiCRep results in the manuscript, run the command:
+python hicrep_analysis.py -i data/hicrep_results_all.txt -ir data/hicrep_results_allreplicates.txt -rcf data/rawcontactcounts.txt -o outputs/
+
+In order to reproduce the JI results in the manuscript, run the command:
+python ji_analysis.py -rf data/optgammafilenames_rep.txt -nrf data/optgammafilenames_nonrep.txt -td data/optgammafilenames_tissuedonors.txt -rcf data/rawcontactcounts.txt -res 100000 -o outputs
+assuming you have computed the TAD sets named in the optgammafilenames_* files, and they are in a directory named "armatusresults".
+
+In order to reproduce the TADsim results in the manuscript, run the command:
+python analysis/tadsim_analysis.py -rf 'tadsimresults/replicates/*' -nrf 'tadsimresults/nonreplicates/*' -td 'tadsimresults/tissuedonorcomparisons/*' -rcf data/rawcontactcounts.txt -res 100000 -c data/allcelltypes.txt -o outputs
+assuming you have already run TADsim on all samples, and the outputs are found in a "tadsimresults" directory.
