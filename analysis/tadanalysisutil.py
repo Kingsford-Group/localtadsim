@@ -322,6 +322,17 @@ def plotSimVContactCounts(rawcontactcounts, repdata, measure, figname):
                         labels.extend(celltype)
                     else:
                         print 'cant find', celltype,i,j
+                elif measure == 'TADsim':
+                    if numreps == 2: 
+                        key = celltype
+                    elif numreps > 2:
+                        key = celltype + str(i+1) + str(j+1)
+                    if key in repdata:
+                        rawcountsx.extend([min([rawcounts[i],rawcounts[j]])])
+                        simvalsy.extend([repdata[key]])
+                        labels.extend(celltype)
+                    else:
+                        print 'cant find', celltype,i,j
     sns.scatterplot(rawcountsx,simvalsy,hue=['a']*len(rawcountsx),palette=sns.color_palette(['#58508d']),legend=False,s=35)
     plt.tick_params(top=False,right=False,left=False,bottom=False)
     #plt.scatter(rawcountsx,simvalsy, s=5,c='b')                  
@@ -425,7 +436,6 @@ def plotTissueBoxplots(withintissue,acrosstissue,replicates,background, measure,
 
     newpalette = ['#8dd3c7','#58508d','#bc5090','#003f5c','#ff6361']
     sns.set(style='whitegrid',palette=sns.color_palette(newpalette),color_codes=False,font='Ubuntu')
-
 
     mwuval,pvalwithinvsacross = scipy.stats.mannwhitneyu(withintissue, acrosstissue,alternative='greater')
     mwuval,pvalrepvswithin = scipy.stats.mannwhitneyu(withintissue,replicates)

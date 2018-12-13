@@ -6,7 +6,7 @@ import glob
 import sys
 import scipy.stats
 
-def readLocalDiffFiles(filelist,celltypelist):
+def readRepLocalDiffFiles(filelist,celltypelist):
     compdata = {}
     for idx,filename in enumerate(filelist):
         chrloc = filename.find('_chr')
@@ -17,9 +17,11 @@ def readLocalDiffFiles(filelist,celltypelist):
             ct = '_'.join(fileparts[1:i])
             if ct in celltypelist:
                 celltype = ct
+        if 'hESC_DpnII_reps' in filename:
+            celltype = 'hESC_DpnII_rep'
         for fsplit in fileparts:
             if 'replicates' not in fsplit and 'rep' in fsplit and fsplit[-1] != 's':
-                celltype = celltype + fsplit[-1]
+                celltype = celltype+fsplit[-1]
         #print filename, chrnum, celltype
         dictkey = (celltype, chrnum)
         dictdata = []
